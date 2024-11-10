@@ -28,9 +28,12 @@ def main():
     data = fetch_data(ticker=params["YFINANCE_TICKER"],period=params["YFINANCE_PERIOD"])
     scaled_data, scaler = preprocess_data(data)
 
-    sequences, targets = create_sequences(scaled_data, params["SEQ_LENGTH"])
-    print(f"sequences {sequences}")
-    print(f"targets {targets}")
+    # Create sequences and prepare tensors for PyTorch
+    if params["FRAMEWORK"] == "pytorch":
+        sequences, targets = create_sequences(scaled_data, params["SEQ_LENGTH"])
+        train_size = int(0.8 * len(sequences))
+        X_train, y_train = prepare_tensors(sequences[:train_size], targets[:train_size], device)
+        X_test, y_test = prepare_tensors(sequences[train_size:], targets[train_size:], device)
 
 
 if __name__ == '__main__':
