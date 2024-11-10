@@ -3,21 +3,23 @@ from dotenv import load_dotenv
 
 from data import fetch_data, preprocess_data
 
+from mlflow_setup import init_mlflow, log_params
+
 
 load_dotenv()
-YFINANCE_TICKER = os.getenv('YFINANCE_TICKER')
-YFINANCE_PERIOD = os.getenv('YFINANCE_PERIOD')
 
 
 def main():
-    data = fetch_data(ticker=YFINANCE_TICKER,period=YFINANCE_PERIOD)
-    print(f"Dataset:\n\n{data.head()}\n\n")
+    init_mlflow()
 
+    params = {
+        "YFINANCE_TICKER": os.getenv('YFINANCE_TICKER'),
+        "YFINANCE_PERIOD": os.getenv('YFINANCE_PERIOD')
+    }
+    log_params(params)
+
+    data = fetch_data(ticker=params["YFINANCE_TICKER"],period=params["YFINANCE_PERIOD"])
     scaled_data, scaler = preprocess_data(data)
-    print(f"""
-    {scaled_data} \n\n
-    {scaler}
-    """)
 
 
 if __name__ == '__main__':
