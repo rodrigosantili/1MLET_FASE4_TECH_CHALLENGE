@@ -20,7 +20,7 @@ def log_metrics(metrics):
         mlflow.log_metric(key, value)
 
 
-def log_model(model, model_name="Stock_LSTM_Model"):
+def log_pytorch_model(model, model_name="Stock_LSTM_Model"):
     """Salva um modelo PyTorch no MLflow."""
     mlflow.pytorch.log_model(model, model_name)
 
