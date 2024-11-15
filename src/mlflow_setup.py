@@ -20,6 +20,7 @@ def log_metrics(metrics):
     for key, value in metrics.items():
         mlflow.log_metric(key, value)
 
+
 def log_pytorch_model(model, model_name="Stock_LSTM_Model"):
     """Salva um modelo PyTorch no MLflow, incluindo um input_example para assinatura."""
     # Criando um exemplo de entrada baseado no tamanho de entrada esperado pelo modelo

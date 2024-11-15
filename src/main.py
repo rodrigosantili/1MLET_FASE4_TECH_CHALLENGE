@@ -2,6 +2,7 @@ from data import fetch_data, preprocess_data
 
 import torch
 from models.model_pytorch import StockLSTM, train_model
+from models.save_model import save_model_local
 from predict.predict_pytorch import evaluate_model, future_predictions
 
 from utils.plot_utils import plot_all, plot_future_predictions, plot_results
@@ -50,6 +51,9 @@ def main():
         # Initialize and train the PyTorch LSTM model
         model = StockLSTM(input_size=1, hidden_layer_size=params["hidden_layer_size"], output_size=1).to(device)
         model = train_model(model, X_train, y_train, epochs=params["epochs"], lr=params["learning_rate"])
+
+        # Save the trained model locally
+        save_model_local(model, path=r'src\models\saved\trained_model.pth')
 
         # Evaluate the model on both training and testing sets
         train_preds, test_preds, actual = evaluate_model(model, X_train, y_train, X_test, y_test, scaler)
