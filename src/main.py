@@ -3,7 +3,8 @@ from data import fetch_data, preprocess_data
 import torch
 from models.model_pytorch import StockLSTM, train_model
 from models.save_model import save_model_local
-from predict.predict_pytorch import evaluate_model, future_predictions
+from predict.predict_pytorch import future_predictions
+from predict.evaluate_model import evaluate_model
 
 from utils.plot_utils import plot_all, plot_future_predictions, plot_results
 from utils.sequence_utils import create_sequences
