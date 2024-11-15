@@ -12,8 +12,8 @@ class StockLSTM(nn.Module):
         self.linear = nn.Linear(hidden_layer_size, output_size)
 
     def forward(self, input_seq):
-        lstm_out, _ = self.lstm(input_seq)
-        predictions = self.linear(lstm_out[:, -1, :])
+        lstm_out, _ = self.lstm(input_seq)  # lstm_out tem o formato (batch_size, sequence_length, hidden_size)
+        predictions = self.linear(lstm_out[:, -1, :])  # Seleciona a última saída da sequência
         return predictions
 
 

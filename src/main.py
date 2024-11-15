@@ -1,70 +1,74 @@
-import os
-from dotenv import load_dotenv
-
 from data import fetch_data, preprocess_data
-
-import matplotlib.pyplot as plt
 
 import torch
 from models.model_pytorch import StockLSTM, train_model
-from predict.predict_pytorch import evaluate_model, plot_results, future_predictions
+from predict.predict_pytorch import evaluate_model, future_predictions
 
+from utils.plot_utils import plot_all, plot_future_predictions, plot_results
 from utils.sequence_utils import create_sequences
 from utils.tensor_utils import prepare_tensors_pytorch
 from utils.device_utils import get_device
 from mlflow_setup import init_mlflow, log_params
 
-load_dotenv()
-
 
 def main():
+    # Initialize MLflow tracking
     init_mlflow()
 
+    # Set model parameters and hyperparameters
     params = {
-        "YFINANCE_TICKER": os.getenv('YFINANCE_TICKER'),
-        "YFINANCE_PERIOD": os.getenv('YFINANCE_PERIOD'),
-        "FRAMEWORK": "pytorch",  # Can be "pytorch" or "keras"
-        "SEQ_LENGTH": 60,
-        "EPOCHS": 100,
-        "LEARNING_RATE": 0.001,
-        "HIDDEN_LAYER_SIZE": 50,
-        "future_days": 10
+        "yfinance_ticker": "BTC-USD",   # Ticker symbol for Bitcoin in Yahoo Finance
+        "yfinance_period": "max",       # Maximum period available for data collection
+        "framework": "pytorch",         # Model framework choice (can be "pytorch" or "keras")
+        "seq_length": 20,               # Sequence length for LSTM input
+        "epochs": 300,                  # Number of training epochs
+        "learning_rate": 0.008,         # Learning rate for model training
+        "hidden_layer_size": 140,       # Size of the hidden layer in the LSTM
+        "future_days": 15               # Number of days to predict into the future
     }
+
+    # Log parameters to MLflow for tracking experiment configurations
     log_params(params)
 
-    device = get_device(params["FRAMEWORK"])
+    # Determine and set device based on the framework (CPU or GPU)
+    device = get_device(params["framework"])
 
-    data = fetch_data(ticker=params["YFINANCE_TICKER"],period=params["YFINANCE_PERIOD"])
+    # Fetch and preprocess data
+    data = fetch_data(ticker=params["yfinance_ticker"], period=params["yfinance_period"])
     scaled_data, scaler = preprocess_data(data)
 
-    # Create sequences and prepare tensors for PyTorch
-    if params["FRAMEWORK"] == "pytorch":
-        sequences, targets = create_sequences(scaled_data, params["SEQ_LENGTH"])
-        train_size = int(0.8 * len(sequences))
+    # Model framework-specific setup
+    if params["framework"] == "pytorch":
+        # Create input sequences and targets for training
+        sequences, targets = create_sequences(scaled_data, params["seq_length"])
+        train_size = int(0.8 * len(sequences))  # Split data into 80% training and 20% testing
+
+        # Prepare PyTorch tensors for training and testing sets
         X_train, y_train = prepare_tensors_pytorch(sequences[:train_size], targets[:train_size], device)
         X_test, y_test = prepare_tensors_pytorch(sequences[train_size:], targets[train_size:], device)
 
-        # Initialize and train the PyTorch model
-        model = StockLSTM(input_size=1, hidden_layer_size=params["HIDDEN_LAYER_SIZE"], output_size=1).to(device)
-        model = train_model(model, X_train, y_train, epochs=params["EPOCHS"], lr=params["LEARNING_RATE"])
+        # Initialize and train the PyTorch LSTM model
+        model = StockLSTM(input_size=1, hidden_layer_size=params["hidden_layer_size"], output_size=1).to(device)
+        model = train_model(model, X_train, y_train, epochs=params["epochs"], lr=params["learning_rate"])
 
-        # Evaluate and plot results
+        # Evaluate the model on both training and testing sets
         train_preds, test_preds, actual = evaluate_model(model, X_train, y_train, X_test, y_test, scaler)
-        plot_results(actual, train_preds, test_preds)
+        plot_results(actual, train_preds, test_preds)  # Plot the actual, training, and testing predictions
 
-        # Future predictions
-        last_sequence = torch.tensor(scaled_data[-params["SEQ_LENGTH"]:], dtype=torch.float32).unsqueeze(0).unsqueeze(
+        # Prepare the last sequence for future predictions
+        last_sequence = torch.tensor(scaled_data[-params["seq_length"]:], dtype=torch.float32).unsqueeze(0).unsqueeze(
             -1).to(device)
-        future_preds = future_predictions(model, last_sequence, params["future_days"], scaler)
+        future_preds = future_predictions(model, last_sequence, params["future_days"],
+                                          scaler)  # Generate future predictions
 
-        # Plot future predictions
-        plt.figure(figsize=(12, 6))
-        plt.plot(scaler.inverse_transform(scaled_data), label="Historical Prices")
-        plt.plot(range(len(scaled_data), len(scaled_data) + params["future_days"]), future_preds,
-                 label="Future Predictions", color="red")
-        plt.legend()
-        plt.show()
+        # Plot the future predictions alongside the historical data
+        plot_future_predictions(scaled_data, future_preds, scaler, future_days=params["future_days"])
+
+        # Plot all predictions in a single chart for a complete overview
+        plot_all(actual, train_preds, test_preds, future_preds, seq_length=params["seq_length"],
+                 future_days=params["future_days"])
 
 
+# Execute main function if script is run directly
 if __name__ == '__main__':
     main()
