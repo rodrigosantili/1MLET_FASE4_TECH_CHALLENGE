@@ -1,12 +1,17 @@
 from data import fetch_data, preprocess_data
-
+import numpy as np
 import torch
 from models.model_pytorch import StockLSTM, train_model
 from models.save_model import save_model_local
 from predict.predict_pytorch import future_predictions
 from predict.evaluate_model import evaluate_model
 
-from utils.plot_utils import plot_all, plot_future_predictions, plot_results
+from utils.plot_utils import (
+    plot_all, plot_future_predictions, plot_results,
+    plot_residuals, plot_residual_distribution,
+    plot_train_test_predictions, plot_confidence_interval,
+    plot_autocorrelation, plot_historical_and_future
+)
 from utils.sequence_utils import create_sequences
 from utils.tensor_utils import prepare_tensors_pytorch
 from utils.device_utils import get_device
@@ -58,16 +63,26 @@ def main():
 
         # Evaluate the model on both training and testing sets
         train_preds, test_preds, actual = evaluate_model(model, X_train, y_train, X_test, y_test, scaler)
-        plot_results(actual, train_preds, test_preds)  # Plot the actual, training, and testing predictions
+
+        # Plot the results
+        plot_results(actual, train_preds, test_preds)  # Actual, training, and testing predictions
+
+        # Residuals and additional plots
+        residuals = actual - np.concatenate((train_preds, test_preds))
+        plot_residuals(actual, np.concatenate((train_preds, test_preds)))  # Residual plot
+        plot_residual_distribution(residuals)  # Distribution of residuals
+        plot_train_test_predictions(actual, train_preds, test_preds)  # Train vs. test predictions
+        plot_confidence_interval(actual, np.concatenate((train_preds, test_preds)), residuals)  # Confidence interval
+        plot_autocorrelation(residuals)  # Autocorrelation of residuals
 
         # Prepare the last sequence for future predictions
         last_sequence = torch.tensor(scaled_data[-params["seq_length"]:], dtype=torch.float32).unsqueeze(0).unsqueeze(
             -1).to(device)
-        future_preds = future_predictions(model, last_sequence, params["future_days"],
-                                          scaler)  # Generate future predictions
+        future_preds = future_predictions(model, last_sequence, params["future_days"], scaler)  # Generate future predictions
 
         # Plot the future predictions alongside the historical data
         plot_future_predictions(scaled_data, future_preds, scaler, future_days=params["future_days"])
+        plot_historical_and_future(actual, future_preds)  # Historical data and future predictions
 
         # Plot all predictions in a single chart for a complete overview
         plot_all(actual, train_preds, test_preds, future_preds, seq_length=params["seq_length"],
