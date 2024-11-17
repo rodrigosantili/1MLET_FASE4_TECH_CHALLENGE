@@ -24,14 +24,14 @@ def main():
 
     # Set model parameters and hyperparameters
     params = {
-        "yfinance_ticker": "BTC-USD",   # Ticker symbol for Bitcoin in Yahoo Finance
+        "yfinance_ticker": "BTC-USD",  # Ticker symbol for Bitcoin in Yahoo Finance
         "yfinance_period": "max",       # Maximum period available for data collection
         "framework": "pytorch",         # Model framework choice (can be "pytorch" or "keras")
         "seq_length": 20,               # Sequence length for LSTM input
         "epochs": 300,                  # Number of training epochs
         "learning_rate": 0.008,         # Learning rate for model training
         "hidden_layer_size": 140,       # Size of the hidden layer in the LSTM
-        "future_days": 15               # Number of days to predict into the future
+        "future_days": 7              # Number of days to predict into the future
     }
 
     # Log parameters to MLflow for tracking experiment configurations
