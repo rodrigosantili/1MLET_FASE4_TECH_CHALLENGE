@@ -7,8 +7,7 @@ from predict.predict_pytorch import future_predictions
 from predict.evaluate_model import evaluate_model
 
 from utils.plot_utils import (
-    plot_all, plot_future_predictions, plot_results,
-    plot_residuals, plot_residual_distribution,
+    plot_all, plot_residuals, plot_residual_distribution,
     plot_train_test_predictions, plot_confidence_interval,
     plot_autocorrelation, plot_historical_and_future
 )
@@ -24,11 +23,11 @@ def main():
 
     # Set model parameters and hyperparameters
     params = {
-        "yfinance_ticker": "BTC-USD",  # Ticker symbol for Bitcoin in Yahoo Finance
+        "yfinance_ticker": "NVDA",  # Ticker symbol for Bitcoin in Yahoo Finance
         "yfinance_period": "max",       # Maximum period available for data collection
         "framework": "pytorch",         # Model framework choice (can be "pytorch" or "keras")
         "seq_length": 20,               # Sequence length for LSTM input
-        "epochs": 300,                  # Number of training epochs
+        "epochs": 250,                  # Number of training epochs
         "learning_rate": 0.008,         # Learning rate for model training
         "hidden_layer_size": 140,       # Size of the hidden layer in the LSTM
         "future_days": 7              # Number of days to predict into the future
@@ -65,13 +64,13 @@ def main():
         train_preds, test_preds, actual = evaluate_model(model, X_train, y_train, X_test, y_test, scaler)
 
         # Plot the results
-        plot_results(actual, train_preds, test_preds)  # Actual, training, and testing predictions
+        plot_train_test_predictions(actual, train_preds, test_preds)  # Train vs. test predictions
 
         # Residuals and additional plots
         residuals = actual - np.concatenate((train_preds, test_preds))
         plot_residuals(actual, np.concatenate((train_preds, test_preds)))  # Residual plot
         plot_residual_distribution(residuals)  # Distribution of residuals
-        plot_train_test_predictions(actual, train_preds, test_preds)  # Train vs. test predictions
+
         plot_confidence_interval(actual, np.concatenate((train_preds, test_preds)), residuals)  # Confidence interval
         plot_autocorrelation(residuals)  # Autocorrelation of residuals
 
@@ -81,7 +80,6 @@ def main():
         future_preds = future_predictions(model, last_sequence, params["future_days"], scaler)  # Generate future predictions
 
         # Plot the future predictions alongside the historical data
-        plot_future_predictions(scaled_data, future_preds, scaler, future_days=params["future_days"])
         plot_historical_and_future(actual, future_preds)  # Historical data and future predictions
 
         # Plot all predictions in a single chart for a complete overview

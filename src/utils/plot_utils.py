@@ -26,26 +26,6 @@ def plot_all(actual, train_preds, test_preds, future_preds, seq_length, future_d
     plt.legend()
     plt.show()
 
-def plot_future_predictions(scaled_data, future_preds, scaler, future_days):
-    plt.figure(figsize=(12, 6))
-    plt.plot(scaler.inverse_transform(scaled_data), label="Historical Prices", color="blue")
-    plt.plot(range(len(scaled_data), len(scaled_data) + future_days), future_preds, label="Future Predictions", color="red")
-    plt.title("Future Stock Price Predictions")
-    plt.xlabel("Days")
-    plt.ylabel("Price")
-    plt.legend()
-    plt.show()
-
-def plot_results(actual, train_preds, test_preds):
-    plt.figure(figsize=(12, 6))
-    plt.plot(actual, label="Actual Prices", color="blue")
-    plt.plot(np.arange(len(train_preds)), train_preds, label="Training Predictions", color="orange")
-    plt.plot(np.arange(len(train_preds), len(train_preds) + len(test_preds)), test_preds, label="Testing Predictions", color="green")
-    plt.title("Training and Testing Predictions")
-    plt.xlabel("Days")
-    plt.ylabel("Price")
-    plt.legend()
-    plt.show()
 
 def plot_residuals(actual, predictions):
     residuals = actual - predictions
