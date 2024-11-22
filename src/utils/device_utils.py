@@ -1,5 +1,5 @@
 import torch
-import tensorflow as tf
+# import tensorflow as tf
 
 
 def get_device(framework="pytorch"):
@@ -17,9 +17,9 @@ def get_device(framework="pytorch"):
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"Using device for PyTorch: {device}")
         return device
-    elif framework == "keras":
-        device = "/GPU:0" if tf.config.list_physical_devices('GPU') else "/CPU:0"
-        print(f"Using device for Keras: {device}")
-        return device
+    # elif framework == "keras":
+    #     device = "/GPU:0" if tf.config.list_physical_devices('GPU') else "/CPU:0"
+    #     print(f"Using device for Keras: {device}")
+    #     return device
     else:
         raise ValueError("Unsupported framework. Choose 'pytorch' or 'keras'.")

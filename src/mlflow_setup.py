@@ -1,6 +1,6 @@
 import mlflow
 import mlflow.pytorch
-import mlflow.keras
+# import mlflow.keras
 import torch
 
 
@@ -28,6 +28,6 @@ def log_pytorch_model(model, model_name="Stock_LSTM_Model"):
     mlflow.pytorch.log_model(model, model_name, input_example=input_example)
 
 
-def log_keras_model(model, model_name="Stock_LSTM_Keras_Model"):
-    """Salva um modelo Keras no MLflow."""
-    mlflow.keras.log_model(model, model_name)
+# def log_keras_model(model, model_name="Stock_LSTM_Keras_Model"):
+#     """Salva um modelo Keras no MLflow."""
+#     mlflow.keras.log_model(model, model_name)

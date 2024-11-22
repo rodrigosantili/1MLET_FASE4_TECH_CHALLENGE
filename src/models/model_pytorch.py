@@ -1,36 +1,42 @@
 import torch
 import torch.nn as nn
-import torch.optim as optim
-from mlflow_setup import log_metrics, log_pytorch_model
-
 
 class StockLSTM(nn.Module):
-    def __init__(self, input_size=1, hidden_layer_size=50, output_size=1):
+    def __init__(self, input_size=1, hidden_layer_size=50, output_size=1, num_layers=2, dropout=0.2):
         super(StockLSTM, self).__init__()
         self.hidden_layer_size = hidden_layer_size
-        self.lstm = nn.LSTM(input_size, hidden_layer_size, batch_first=True)
-        self.linear = nn.Linear(hidden_layer_size, output_size)
+        self.num_layers = num_layers
+
+        # Camada de pré-processamento
+        self.linear_pre = nn.Linear(input_size, hidden_layer_size)
+        self.relu = nn.ReLU()
+
+        # LSTM empilhada com dropout entre as camadas
+        self.lstm = nn.LSTM(hidden_layer_size, hidden_layer_size, num_layers=num_layers, dropout=dropout, batch_first=True)
+        self.dropout = nn.Dropout(dropout)
+
+        # Apenas o estado oculto final da última camada é usado
+        self.linear_post = nn.Linear(hidden_layer_size, output_size)
 
     def forward(self, input_seq):
-        lstm_out, _ = self.lstm(input_seq)  # lstm_out tem o formato (batch_size, sequence_length, hidden_size)
-        predictions = self.linear(lstm_out[:, -1, :])  # Seleciona a última saída da sequência
+        # Pré-processamento
+        pre_processed = self.linear_pre(input_seq)
+        pre_processed = self.relu(pre_processed)
+
+        # Estados ocultos iniciais da LSTM
+        h0 = torch.zeros(self.num_layers, input_seq.size(0), self.hidden_layer_size).to(input_seq.device)
+        c0 = torch.zeros(self.num_layers, input_seq.size(0), self.hidden_layer_size).to(input_seq.device)
+
+        # LSTM
+        lstm_out, (h_n, c_n) = self.lstm(pre_processed, (h0, c0))
+
+        # Usar apenas o estado oculto final da última camada
+        combined_hidden = h_n[-1]
+
+        # Dropout aplicado no estado oculto final
+        combined_hidden = self.dropout(combined_hidden)
+
+        # Camada de pós-processamento
+        predictions = self.linear_post(combined_hidden)
         return predictions
 
-
-def train_model(model, X_train, y_train, epochs=150, lr=0.001):
-    criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=lr)
-    for epoch in range(epochs):
-        model.train()
-        optimizer.zero_grad()
-        y_pred = model(X_train)
-        loss = criterion(y_pred, y_train)
-        loss.backward()
-        optimizer.step()
-
-        if epoch % 10 == 0:
-            log_metrics({"loss": loss.item()})
-            print(f"Epoch {epoch}/{epochs}, Loss: {loss.item()}")
-
-    log_pytorch_model(model)
-    return model
