@@ -1,6 +1,6 @@
 import mlflow
 import mlflow.pytorch
-# import mlflow.keras
+import numpy as np
 import torch
 
 
@@ -21,13 +21,18 @@ def log_metrics(metrics):
         mlflow.log_metric(key, value)
 
 
-def log_pytorch_model(model, model_name="Stock_LSTM_Model"):
-    """Salva um modelo PyTorch no MLflow, incluindo um input_example para assinatura."""
+def log_pytorch_model(model, model_name="Stock_LSTM_Model", seq_length=30, num_features=4):
+    """
+    Salva um modelo PyTorch no MLflow, incluindo um input_example para assinatura.
+
+    Parâmetros:
+        model: O modelo PyTorch a ser salvo.
+        model_name: Nome do modelo para registro no MLflow.
+        seq_length: Comprimento da sequência usada no treinamento.
+        num_features: Número de features usadas no modelo.
+    """
     # Criando um exemplo de entrada baseado no tamanho de entrada esperado pelo modelo
-    input_example = torch.rand(1, 60, 1).numpy()
+    input_example = np.random.rand(1, seq_length, num_features).astype(np.float32)  # Convertendo para np.ndarray
+
+    # Log do modelo no MLflow
     mlflow.pytorch.log_model(model, model_name, input_example=input_example)
-
-
-# def log_keras_model(model, model_name="Stock_LSTM_Keras_Model"):
-#     """Salva um modelo Keras no MLflow."""
-#     mlflow.keras.log_model(model, model_name)

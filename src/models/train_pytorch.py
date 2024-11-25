@@ -50,21 +50,28 @@ def train_epoch(model, dataloader, criterion, optimizer=None, is_training=True):
         if is_training:
             optimizer.zero_grad()
 
+        # Garantir que os tensores estejam no dispositivo correto
         x_batch = x_batch.to(next(model.parameters()).device)
         y_batch = y_batch.to(next(model.parameters()).device)
 
+        # Forward pass
         y_pred = model(x_batch)
         loss = criterion(y_pred, y_batch)
 
         if is_training:
+            # Backward pass e otimização
             loss.backward()
             optimizer.step()
 
+        # Acumular métricas e perdas
         epoch_loss += loss.item()
         all_y_pred.append(y_pred.detach())
         all_y_true.append(y_batch.detach())
 
+    # Calcular a perda média
     epoch_loss /= len(dataloader)
+
+    # Combinar predições e valores reais para métricas
     all_y_pred = torch.cat(all_y_pred)
     all_y_true = torch.cat(all_y_true)
 
