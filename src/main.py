@@ -34,8 +34,8 @@ def main():
         # Parâmetros do modelo
         "framework": "pytorch",
         "hidden_layer_size": 350,
-        "num_layers": 2,
-        "dropout": 0.3,
+        "num_layers": 3,
+        "dropout": 0.35,
 
         # Parâmetros de treinamento
         "seq_length": 60,
@@ -57,14 +57,14 @@ def main():
         "step_size_up": 10,
 
         # Parâmetros para StepLR
-        "step_size": 50,
-        "gamma": 0.85,
+        "step_size": 40,
+        "gamma": 0.75,
 
         # Parâmetros para CosineAnnealingLR
         "t_max": 50,
 
         # Parâmetros de early stopping
-        "early_stopping_patience": 30,
+        "early_stopping_patience": 20,
 
         # Parâmetros de predição futura
         "future_days": 7
@@ -76,15 +76,10 @@ def main():
     # Fetch data
     data = fetch_data(ticker=params["yfinance_ticker"], period=params["yfinance_period"])
 
+    feature_columns = ['Close']
+
     # Aplicar engenharia de features
-    data = add_technical_indicators(data)
-
-    # Remover linhas com valores NaN causados pelos cálculos de indicadores técnicos
-    data = data.dropna()
-
-    # Verificar se não há valores NaN restantes
-    if data.isnull().any().any():
-        raise ValueError("Os dados ainda contêm valores NaN após a remoção.")
+    data, feature_columns = add_technical_indicators(data, feature_columns=feature_columns)
 
     # Split data: 80% training, 20% validation
     train_size = int(0.8 * len(data))
@@ -92,7 +87,6 @@ def main():
     test_data = data[train_size:]
 
     # Normalize data
-    feature_columns = ['Close', 'sma_20', 'rsi', 'macd']
     scaled_train_data, scaler = preprocess_data(train_data, feature_columns=feature_columns)
     scaled_test_data = scaler.transform(test_data[feature_columns])
 

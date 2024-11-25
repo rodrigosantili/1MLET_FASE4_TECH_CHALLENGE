@@ -2,6 +2,7 @@ from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 import pandas as pd
 
+
 def preprocess_data(data, feature_columns):
     """
     Normalize data with multiple features using MinMaxScaler and ensure data consistency.
