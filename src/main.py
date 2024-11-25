@@ -1,4 +1,6 @@
 import torch
+import time
+import psutil
 from torch.utils.data import DataLoader, TensorDataset
 from data.fetch_data import fetch_data
 from data.preprocess_data import preprocess_data
@@ -17,8 +19,50 @@ from utils.plot_utils import (
 from utils.sequence_utils import create_sequences
 from utils.tensor_utils import prepare_tensors_pytorch
 from utils.device_utils import get_device
-from mlflow_setup import init_mlflow, log_params, log_pytorch_model
+from mlflow_setup import init_mlflow, log_params, log_pytorch_model, log_metrics
+from utils.mlflow_plot_utils import log_plot_to_mlflow
 
+def monitor_performance(model, X_test, y_test, scaler):
+    """
+    Monitora o desempenho do modelo em termos de tempo de resposta e utilização de recursos.
+    """
+    model.eval()
+    inference_times = []
+    cpu_usages = []
+    memory_usages = []
+
+    with torch.no_grad():
+        for i in range(len(X_test)):
+            start_time = time.time()
+
+            # Inferência do modelo
+            _ = model(X_test[i:i+1])
+
+            # Medir o tempo de inferência
+            inference_time = time.time() - start_time
+            inference_times.append(inference_time)
+
+            # Capturar métricas de recursos
+            cpu_usage = psutil.cpu_percent(interval=None)
+            memory_usage = psutil.virtual_memory().percent
+            cpu_usages.append(cpu_usage)
+            memory_usages.append(memory_usage)
+
+    # Calcular métricas médias
+    avg_inference_time = sum(inference_times) / len(inference_times)
+    avg_cpu_usage = sum(cpu_usages) / len(cpu_usages)
+    avg_memory_usage = sum(memory_usages) / len(memory_usages)
+
+    # Logar métricas no MLflow
+    log_metrics({
+        "avg_inference_time": avg_inference_time,
+        "avg_cpu_usage": avg_cpu_usage,
+        "avg_memory_usage": avg_memory_usage
+    })
+
+    print(f"Average Inference Time: {avg_inference_time:.6f} seconds")
+    print(f"Average CPU Usage: {avg_cpu_usage:.2f}%")
+    print(f"Average Memory Usage: {avg_memory_usage:.2f}%")
 
 def main():
     # Initialize MLflow tracking
@@ -39,7 +83,8 @@ def main():
 
         # Parâmetros de treinamento
         "seq_length": 60,
-        "epochs": 200,
+        #"epochs": 200,
+        "epochs": 10,
         "learning_rate": 0.0001,
         "weight_decay": 1e-5,
         "batch_size": 32,
@@ -172,6 +217,9 @@ def main():
     plot_all(actual, train_preds, val_preds, future_preds,
              seq_length=params["seq_length"], future_days=params["future_days"])
 
+    # Call monitor_performance
+    monitor_performance(model, X_test, y_test, scaler)
 
+    
 if __name__ == "__main__":
     main()
