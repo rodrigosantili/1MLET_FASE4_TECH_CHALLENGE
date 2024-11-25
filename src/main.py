@@ -25,47 +25,46 @@ def main():
     # Set model parameters and hyperparameters
     params = {
         # Parâmetros de coleta de dados
-        "yfinance_ticker": "BTC-USD",       # Nome do ativo para coletar os dados
-        "yfinance_period": "10y",           # Período disponível para coleta de dados (e.g., '1d', '1mo', '10y', 'max')
+        "yfinance_ticker": "NVDA",       # Nome do ativo para coletar os dados
+        "yfinance_period": "10y",           # Período disponível para coleta de dados  ['1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max']
 
         # Parâmetros do modelo
         "framework": "pytorch",             # Framework utilizado (e.g., 'pytorch')
-        "hidden_layer_size": 256,            # Tamanho da camada oculta do LSTM
+        "hidden_layer_size": 250,            # Tamanho da camada oculta do LSTM
         "num_layers": 3,                    # Número de camadas LSTM empilhadas
-        "dropout": 0.35,                     # Dropout para regularização
+        "dropout": 0.3,                     # Dropout para regularização
 
         # Parâmetros de treinamento
-        "seq_length": 90,                   # Comprimento da sequência de entrada
+        "seq_length": 30,                   # Comprimento da sequência de entrada
         "epochs": 200,                       # Número de épocas de treinamento
-        "learning_rate": 0.0003,            # Taxa de aprendizado
-        "weight_decay": 0.0001,             # Regularização L2 (Adam)
+        "learning_rate": 0.001,            # Taxa de aprendizado
+        "weight_decay": 1e-4,             # Regularização L2 (Adam)
         "batch_size": 32,                   # Tamanho do lote
-        "tolerance": 0.03,                  # Tolerância para calcular acurácia baseada em erro relativo
 
         # Parâmetros do scheduler de aprendizado
         "scheduler_type": "step",           # Tipo de scheduler ('reduce_on_plateau', 'cyclic', 'step', 'cosine_annealing')
 
         # Parâmetros para ReduceLROnPlateau
-        "patience": 15,                     # Paciência para scheduler (ReduceLROnPlateau)
+        "patience": 10,                     # Paciência para scheduler (ReduceLROnPlateau)
         "factor": 0.3,                      # Fator de redução da taxa de aprendizado (ReduceLROnPlateau)
 
         # Parâmetros para CyclicLR
-        "cyclic_base_lr": 5e-5,             # Taxa de aprendizado mínima (CyclicLR)
-        "cyclic_max_lr": 0.0007,            # Taxa de aprendizado máxima (CyclicLR)
-        "step_size_up": 15,                 # Número de iterações para aumentar a LR até o valor máximo (CyclicLR)
+        "cyclic_base_lr": 1e-5,             # Taxa de aprendizado mínima (CyclicLR)
+        "cyclic_max_lr": 0.0005,            # Taxa de aprendizado máxima (CyclicLR)
+        "step_size_up": 10,                 # Número de iterações para aumentar a LR até o valor máximo (CyclicLR)
 
         # Parâmetros para StepLR
-        "step_size": 40,                    # Número de épocas após as quais a LR será reduzida (StepLR)
-        "gamma": 0.85,                       # Fator de redução da taxa de aprendizado (StepLR)
+        "step_size": 50,                    # Número de épocas após as quais a LR será reduzida (StepLR)
+        "gamma": 0.7,                       # Fator de redução da taxa de aprendizado (StepLR)
 
         # Parâmetros para CosineAnnealingLR
-        "t_max": 100,                        # Número de épocas para a taxa de aprendizado reduzir até zero (CosineAnnealingLR)
+        "t_max": 50,                        # Número de épocas para a taxa de aprendizado reduzir até zero (CosineAnnealingLR)
 
         # Parâmetros de early stopping
-        "early_stopping_patience": 50,      # Paciência para early stopping
+        "early_stopping_patience": 30,      # Paciência para early stopping
 
         # Parâmetros de predição futura
-        "future_days": 14                   # Dias para prever
+        "future_days": 7                   # Dias para prever
     }
 
     log_params(params)
@@ -115,18 +114,17 @@ def main():
         epochs=params["epochs"],
         lr=params["learning_rate"],
         weight_decay=params["weight_decay"],
-        tolerance=params["tolerance"],
-        scheduler_type=params["scheduler_type"],  # Especifica o scheduler diretamente
+        scheduler_type=params["scheduler_type"],
 
         # Parâmetros específicos para cada scheduler
-        step_size=params["step_size"],          # Para StepLR
-        gamma=params["gamma"],                  # Para StepLR
-        t_max=params["t_max"],  # Para CosineAnnealingLR
-        cyclic_base_lr=params["cyclic_base_lr"],  # Para CyclicLR
-        cyclic_max_lr=params["cyclic_max_lr"],  # Para CyclicLR
-        step_size_up=params["step_size_up"],  # Para CyclicLR
-        patience=params["patience"],  # Para ReduceLROnPlateau
-        factor=params["factor"],  # Para ReduceLROnPlateau
+        step_size=params["step_size"],              # Para StepLR
+        gamma=params["gamma"],                      # Para StepLR
+        t_max=params["t_max"],                      # Para CosineAnnealingLR
+        cyclic_base_lr=params["cyclic_base_lr"],    # Para CyclicLR
+        cyclic_max_lr=params["cyclic_max_lr"],      # Para CyclicLR
+        step_size_up=params["step_size_up"],        # Para CyclicLR
+        patience=params["patience"],                # Para ReduceLROnPlateau
+        factor=params["factor"],                    # Para ReduceLROnPlateau
 
         # Parâmetros para early stopping
         early_stopping_patience=params["early_stopping_patience"]
