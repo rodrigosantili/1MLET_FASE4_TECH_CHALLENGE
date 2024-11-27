@@ -1,14 +1,9 @@
 services:
   api:
     build: .
-    container_name: prediction_api
+    container_name: btc_prediction_api
     ports:
       - "8080:8080"
-    volumes:
-      - ./src:/app/src
-      - ./res:/app/res
-    environment:
-      - PYTHONUNBUFFERED=1
     networks:
       - api_network
 
@@ -29,6 +24,10 @@ services:
       - "3000:3000"
     environment:
       - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - ./grafana/dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
     networks:
       - api_network
     depends_on:
