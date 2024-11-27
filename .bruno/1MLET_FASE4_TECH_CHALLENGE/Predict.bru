@@ -5,7 +5,7 @@ meta {
 }
 
 post {
-  url: http://127.0.0.1:8000/predict
+  url: http://127.0.0.1:8080/predict
   body: json
   auth: none
 }
@@ -16,12 +16,6 @@ headers {
 
 body:json {
   {
-    "historical_data": [
-      100,
-      101,
-      102,
-      103,
-      104
-    ]
+    "days_forward": 60
   }
 }

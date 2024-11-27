@@ -45,7 +45,7 @@ Auxiliary functions for various tasks across the project.
 1. Install all necessary dependencies:
    ```bash
    pip install -r requirements.txt
-2. Configure parameters (`param`) in `main.py` as needed.
+2. Configure parameters (`param`) in `src/ml/main.py` as needed.
 3. Execute the main pipeline using:
    ```bash
-   python src/main.py
+   python src/ml/main.py

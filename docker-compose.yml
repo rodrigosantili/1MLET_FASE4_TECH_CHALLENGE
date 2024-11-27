@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  api:
+    build: .
+    container_name: btc_prediction_api
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src:/app/src
+      - ./res:/app/res
+    environment:
+      - PYTHONUNBUFFERED=1
+    networks:
+      - api_network
+
+networks:
+  api_network:
+    driver: bridge
