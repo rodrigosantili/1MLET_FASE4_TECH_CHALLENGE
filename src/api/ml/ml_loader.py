@@ -2,10 +2,10 @@ import logging
 import os
 import torch
 
-from models.model_pytorch import StockLSTM
+from ...lib.ml.pytorch_model import StockLSTM
 
-MODEL_PATH = "../../res/models/saved/trained_model.pth"
-SCALER_PATH = "../../res/models/saved/scaler.pt"
+MODEL_PATH = "res/models/saved/trained_model.pth"
+SCALER_PATH = "res/models/saved/scaler.pt"
 
 
 logging.basicConfig(level=logging.INFO)

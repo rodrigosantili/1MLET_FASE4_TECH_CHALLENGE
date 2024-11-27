@@ -1,10 +1,10 @@
 import logging
 from fastapi import APIRouter, Depends
 
-from domain.requests import GetPredictionRequest
-from domain.responses import GetPredictionResponse
-from routers.di import injector
-from routers.interfaces import PredictionService, HistoricalDataService
+from ..domain.requests import GetPredictionRequest
+from ..domain.responses import GetPredictionResponse
+from ..routers.di import injector
+from ..routers.interfaces import PredictionService, HistoricalDataService
 
 logging.basicConfig(level=logging.INFO)
 

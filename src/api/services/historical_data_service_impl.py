@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 
 from pandas import DataFrame
 
-from routers.interfaces import HistoricalDataService
+from ..routers.interfaces import HistoricalDataService
 
 logging.basicConfig(level=logging.INFO)
 

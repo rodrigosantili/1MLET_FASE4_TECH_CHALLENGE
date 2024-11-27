@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   api:
     build: .
-    container_name: btc_prediction_api
+    container_name: prediction_api
     ports:
       - "8080:8080"
     volumes:
@@ -13,6 +11,28 @@ services:
       - PYTHONUNBUFFERED=1
     networks:
       - api_network
+
+  prometheus:
+    image: prom/prometheus:v2.37.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - api_network
+
+  grafana:
+    image: grafana/grafana:8.5.5
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - api_network
+    depends_on:
+      - prometheus
 
 networks:
   api_network:

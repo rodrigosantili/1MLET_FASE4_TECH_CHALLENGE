@@ -6,12 +6,12 @@ from torch.utils.data import DataLoader, TensorDataset
 from data.feature_engineering import add_technical_indicators
 from data.fetch_data import fetch_yfinance_data
 from data.preprocess_data import preprocess_data
-from models.model_pytorch import StockLSTM
-from models.train_pytorch import train_model
+from ml.model_pytorch import StockLSTM
+from ml.train_pytorch import train_model
 from utils.device_utils import get_device
 from utils.save_utils import save_model_local, save_scaler_torch
-from predict.predict_pytorch import future_predictions
-from predict.evaluate_model import evaluate_model
+from ml.predict_utils import future_predictions
+from ml.evaluate_model import evaluate_model
 from utils.plot_utils import (
     plot_residual_distribution, plot_residuals, plot_all,
     plot_train_test_predictions, plot_confidence_interval,

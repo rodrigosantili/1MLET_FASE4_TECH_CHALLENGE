@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from pandas import DataFrame
 
-from domain.responses import GetPredictionResponse
+from ...domain.responses import GetPredictionResponse
 
 
 class PredictionService(ABC):

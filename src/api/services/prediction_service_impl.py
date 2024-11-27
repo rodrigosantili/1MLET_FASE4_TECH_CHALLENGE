@@ -1,12 +1,14 @@
 import logging
 import torch
+
 from fastapi import HTTPException
 from pandas import DataFrame
-from data import add_technical_indicators
-from domain.responses import GetPredictionResponse
-from ml import MLLoader
-from predict.predict_pytorch import future_predictions
-from routers.interfaces import PredictionService
+
+from ...lib.data import add_technical_indicators
+from ...lib.ml.pytorch_predict import future_predictions
+from ..domain.responses import GetPredictionResponse
+from ..ml import MLLoader
+from ..routers.interfaces import PredictionService
 
 logging.basicConfig(level=logging.INFO)
 
