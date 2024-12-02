@@ -5,14 +5,14 @@ import torch.nn as nn
 class StockLSTM(nn.Module):
     def __init__(self, input_size=1, hidden_layer_size=50, output_size=1, num_layers=2, dropout=0.2):
         """
-        Modelo LSTM para prever séries temporais com múltiplas features.
+        LSTM model to predict time series with multiple features.
 
-        Parâmetros:
-            input_size (int): Número de features de entrada.
-            hidden_layer_size (int): Tamanho da camada oculta da LSTM.
-            output_size (int): Tamanho da saída (normalmente 1 para prever apenas o preço).
-            num_layers (int): Número de camadas LSTM empilhadas.
-            dropout (float): Taxa de dropout para regularização.
+        Parameters:
+            input_size (int): Number of input features.
+            hidden_layer_size (int): Size of the LSTM hidden layer.
+            output_size (int): Output size (usually 1 to predict only the price).
+            num_layers (int): Number of stacked LSTM layers.
+            dropout (float): Dropout rate for regularization.
         """
         super(StockLSTM, self).__init__()
         self.hidden_layer_size = hidden_layer_size
@@ -35,13 +35,13 @@ class StockLSTM(nn.Module):
 
     def forward(self, input_seq):
         """
-        Forward pass do modelo.
+        Forward pass of the model.
 
-        Parâmetros:
-            input_seq (tensor): Tensor de entrada com shape (batch_size, seq_length, input_size).
+        Parameters:
+            input_seq (tensor): Input tensor with shape (batch_size, seq_length, input_size).
 
-        Retorna:
-            predictions (tensor): Tensor de saída com shape (batch_size, output_size).
+        Returns:
+            predictions (tensor): Output tensor with shape (batch_size, output_size).
         """
         # Estados iniciais da LSTM
         h0 = torch.zeros(self.num_layers, input_seq.size(0), self.hidden_layer_size).to(input_seq.device)

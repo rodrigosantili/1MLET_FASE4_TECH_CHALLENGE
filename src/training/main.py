@@ -20,7 +20,7 @@ from ..lib.utils.plot_utils import (
 )
 from ..lib.utils.sequence_utils import create_sequences
 from ..lib.utils.tensor_utils import prepare_tensors_pytorch
-from .mlflow_setup import init_mlflow, log_params, log_pytorch_model, log_metrics
+from ..lib.utils.mlflow_setup import init_mlflow, log_params, log_pytorch_model, log_metrics
 
 
 def monitor_performance(model, X_test, y_test, scaler):

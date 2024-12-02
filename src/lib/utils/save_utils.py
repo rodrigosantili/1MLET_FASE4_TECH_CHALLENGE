@@ -5,7 +5,11 @@ import torch
 
 def save_model_local(model, path='model.pth'):
     """
-    Salva o modelo treinado localmente no formato PyTorch.
+    Saves the trained model locally in PyTorch format.
+
+    Parameters:
+        model (torch.nn.Module): The trained PyTorch model to be saved.
+        path (str): The file path where the model will be saved. Default is 'model.pth'.
     """
     os.makedirs(os.path.dirname(path), exist_ok=True)
     torch.save(model.state_dict(), path)
@@ -14,11 +18,11 @@ def save_model_local(model, path='model.pth'):
 
 def save_scaler_torch(scaler, path):
     """
-    Salva o scaler usando torch.save.
+    Saves the scaler using torch.save.
 
     Parameters:
-        scaler: O objeto scaler treinado (e.g., MinMaxScaler).
-        path (str): Caminho onde o scaler será salvo.
+        scaler: The trained scaler object (e.g., MinMaxScaler).
+        path (str): The file path where the scaler will be saved.
     """
     os.makedirs(os.path.dirname(path), exist_ok=True)
     torch.save(scaler, path)

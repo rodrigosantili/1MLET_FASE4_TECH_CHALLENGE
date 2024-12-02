@@ -2,7 +2,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau, CyclicLR, StepLR, CosineAnnealingLR
-from mlflow_setup import log_metrics, log_pytorch_model
+
+from ..utils.mlflow_setup import log_metrics, log_pytorch_model
 
 
 def calculate_metrics(y_pred, y_true):

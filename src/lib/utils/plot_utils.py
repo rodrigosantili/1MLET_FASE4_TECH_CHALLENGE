@@ -1,17 +1,18 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def plot_all(actual, train_preds, test_preds, future_preds, seq_length, future_days):
     """
-    Plota os valores reais, as previsões de treino, teste e as previsões futuras.
+    Plots the actual values, training predictions, testing predictions, and future predictions.
 
-    Parâmetros:
-    - actual (np.array): Série de preços reais.
-    - train_preds (np.array): Previsões do conjunto de treino.
-    - test_preds (np.array): Previsões do conjunto de teste.
-    - future_preds (np.array): Previsões para os dias futuros.
-    - seq_length (int): Comprimento da sequência usada no modelo.
-    - future_days (int): Número de dias para previsões futuras.
+    Parameters:
+    - actual (np.array): Series of actual prices.
+    - train_preds (np.array): Predictions for the training set.
+    - test_preds (np.array): Predictions for the testing set.
+    - future_preds (np.array): Predictions for future days.
+    - seq_length (int): Length of the sequence used in the model.
+    - future_days (int): Number of days for future predictions.
     """
     plt.figure(figsize=(14, 7))
     plt.plot(np.arange(seq_length, len(actual)), actual[seq_length:], label="Actual Prices", color="blue")
@@ -37,6 +38,7 @@ def plot_residuals(actual, predictions):
     plt.legend()
     plt.show()
 
+
 def plot_residual_distribution(residuals):
     plt.figure(figsize=(8, 6))
     plt.hist(residuals, bins=30, edgecolor='black')
@@ -44,6 +46,7 @@ def plot_residual_distribution(residuals):
     plt.xlabel("Residual Value")
     plt.ylabel("Frequency")
     plt.show()
+
 
 def plot_train_test_predictions(actual, train_preds, test_preds):
     plt.figure(figsize=(12, 6))
@@ -55,6 +58,7 @@ def plot_train_test_predictions(actual, train_preds, test_preds):
     plt.ylabel("Price")
     plt.legend()
     plt.show()
+
 
 def plot_confidence_interval(actual, predictions, residuals):
     confidence_interval = 1.96 * residuals.std()  # 95% Confidence Interval
@@ -82,11 +86,11 @@ def plot_confidence_interval(actual, predictions, residuals):
 
 def plot_autocorrelation(residuals, max_lag=40):
     """
-    Plota a autocorrelação dos resíduos para os primeiros lags até max_lag.
+    Plots the autocorrelation of residuals for the first lags up to max_lag.
 
-    Parâmetros:
-    - residuals (np.array): Array de resíduos do modelo.
-    - max_lag (int): Número máximo de lags para calcular a autocorrelação.
+    Parameters:
+    - residuals (np.array): Array of model residuals.
+    - max_lag (int): Maximum number of lags to calculate autocorrelation.
     """
     # Calcula a média dos resíduos
     mean_residuals = np.mean(residuals)
@@ -114,6 +118,7 @@ def plot_autocorrelation(residuals, max_lag=40):
     plt.ylabel("Autocorrelation")
     plt.title("Residual Autocorrelation")
     plt.show()
+
 
 def plot_historical_and_future(actual, future_preds):
     plt.figure(figsize=(12, 6))

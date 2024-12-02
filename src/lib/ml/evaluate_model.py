@@ -1,25 +1,26 @@
 import torch
 import numpy as np
 from sklearn.metrics import mean_absolute_error, mean_squared_error
-from mlflow_setup import log_metrics
+
+from ..utils.mlflow_setup import log_metrics
 
 
 def evaluate_model(model, X_train, y_train, X_test, y_test, scaler):
     """
-    Avalia o modelo usando os conjuntos de treino e teste.
+    Evaluates the model using the training and testing sets.
 
-    Parâmetros:
-        model: Modelo treinado.
-        X_train: Tensor de entrada de treino.
-        y_train: Tensor de saída real de treino.
-        X_test: Tensor de entrada de teste.
-        y_test: Tensor de saída real de teste.
-        scaler: Objeto MinMaxScaler usado para normalizar os dados.
+    Parameters:
+        model: Trained model.
+        X_train: Training input tensor.
+        y_train: Actual training output tensor.
+        X_test: Testing input tensor.
+        y_test: Actual testing output tensor.
+        scaler: MinMaxScaler object used to normalize the data.
 
-    Retorna:
-        train_preds: Previsões para o conjunto de treino (desnormalizadas).
-        test_preds: Previsões para o conjunto de teste (desnormalizadas).
-        actual: Valores reais desnormalizados de treino e teste.
+    Returns:
+        train_preds: Predictions for the training set (denormalized).
+        test_preds: Predictions for the testing set (denormalized).
+        actual: Actual denormalized values of training and testing sets.
     """
     model.eval()  # Modo de avaliação
     with torch.no_grad():
