@@ -36,7 +36,7 @@ Includes scripts and resources for training the machine learning model. This dir
 1. Install all necessary dependencies:
    ```bash
    pip install -r requirements.txt
-2. Configure parameters (`param`) in `src/training/main.py` as needed.
+2. Configure training parameters in `config.yaml` as needed.
 3. Execute the main pipeline using:
    ```bash
    python -m src.training.main
@@ -45,6 +45,9 @@ Includes scripts and resources for training the machine learning model. This dir
 1. Install all necessary dependencies:
    ```bash
    pip install -r requirements.txt
-2. Run the docker-compose file to start the API service:
+2. Run the main pipeline if there already isn't a trained model and scaler available in `/res/models/saved`:
+   ```bash
+   python -m src.training.main
+3. Run the docker-compose file to start the API service:
    ```bash
    docker-compose up --build

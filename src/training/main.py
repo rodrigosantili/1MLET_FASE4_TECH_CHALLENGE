@@ -1,6 +1,7 @@
 import torch
 import time
 import psutil
+import yaml
 
 from torch.utils.data import DataLoader, TensorDataset
 
@@ -67,57 +68,51 @@ def monitor_performance(model, X_test, y_test, scaler):
 
 
 def main():
-    # Initialize MLflow tracking
-    init_mlflow()
+    with open('config.yaml', 'r') as file:
+        config = yaml.safe_load(file)
 
     # Set model parameters and hyperparameters
     params = {
-        # Parâmetros de coleta de dados
-        "yfinance_ticker": "BTC-USD",  # Nome do ativo para coletar os dados
-        "yfinance_period": "10y",
-        # Período disponível para coleta de dados
+        # Data collection parameters
+        "yfinance_ticker": config['data_collection']['yfinance_ticker'],
+        "yfinance_period": config['data_collection']['yfinance_period'],
 
-        # Parâmetros do modelo
-        "framework": "pytorch",
-        "hidden_layer_size": 350,
-        "num_layers": 3,
-        "dropout": 0.35,
+        # Model parameters
+        "framework": config['model']['framework'],
+        "hidden_layer_size": config['model']['hidden_layer_size'],
+        "num_layers": config['model']['num_layers'],
+        "dropout": config['model']['dropout'],
 
-        # Parâmetros de treinamento
-        "seq_length": 60,
-        "epochs": 200,
-        #"epochs": 1,
-        "learning_rate": 0.0001,
-        "weight_decay": 1e-5,
-        "batch_size": 32,
+        # Training parameters
+        "seq_length": config['training']['seq_length'],
+        "epochs": config['training']['epochs'],
+        "learning_rate": float(config['training']['learning_rate']),
+        "weight_decay": float(config['training']['weight_decay']),
+        "batch_size": config['training']['batch_size'],
 
-        # Parâmetros do scheduler de aprendizado
-        "scheduler_type": "step",
+        # Scheduler parameters
+        "scheduler_type": config['scheduler']['type'],
+        "step_size": config['scheduler']['step_size'],
+        "gamma": config['scheduler']['gamma'],
+        "patience": config['scheduler']['patience'],
+        "factor": config['scheduler']['factor'],
+        "cyclic_base_lr": float(config['scheduler']['cyclic_base_lr']),
+        "cyclic_max_lr": float(config['scheduler']['cyclic_max_lr']),
+        "step_size_up": config['scheduler']['step_size_up'],
+        "t_max": config['scheduler']['t_max'],
 
-        # Parâmetros para ReduceLROnPlateau
-        "patience": 10,
-        "factor": 0.3,
+        # Early stopping parameters
+        "early_stopping_patience": config['early_stopping']['patience'],
 
-        # Parâmetros para CyclicLR
-        "cyclic_base_lr": 1e-5,
-        "cyclic_max_lr": 0.0005,
-        "step_size_up": 10,
-
-        # Parâmetros para StepLR
-        "step_size": 40,
-        "gamma": 0.75,
-
-        # Parâmetros para CosineAnnealingLR
-        "t_max": 50,
-
-        # Parâmetros de early stopping
-        "early_stopping_patience": 20,
-
-        # Parâmetros de predição futura
-        "future_days": 7
+        # Prediction parameters
+        "future_days": config['prediction']['future_days']
     }
 
     log_params(params)
+
+    # Initialize MLflow tracking
+    init_mlflow()
+
     device = get_device(params["framework"])
 
     # Fetch data

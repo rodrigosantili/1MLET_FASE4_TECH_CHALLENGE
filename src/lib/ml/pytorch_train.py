@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
-import torch.optim as optim
+
+from torch.optim import Adam
 from torch.optim.lr_scheduler import ReduceLROnPlateau, CyclicLR, StepLR, CosineAnnealingLR
 
 from ..utils.mlflow_setup import log_metrics, log_pytorch_model
@@ -8,15 +9,14 @@ from ..utils.mlflow_setup import log_metrics, log_pytorch_model
 
 def calculate_metrics(y_pred, y_true):
     """
-    Calcula métricas relevantes para problemas de regressão:
-    MAE, MSE e RMSE.
+    Calculates relevant metrics for regression problems: MAE, MSE, and RMSE.
 
-    Parâmetros:
-        y_pred: Tensores com as predições do modelo.
-        y_true: Tensores com os valores reais.
+    Parameters:
+        y_pred (torch.Tensor): Tensors with the model predictions.
+        y_true (torch.Tensor): Tensors with the actual values.
 
-    Retorna:
-        Um dicionário com as métricas calculadas.
+    Returns:
+        dict: A dictionary with the calculated metrics.
     """
     mae = torch.mean(torch.abs(y_pred - y_true)).item()
     mse = torch.mean((y_pred - y_true) ** 2).item()
@@ -26,17 +26,17 @@ def calculate_metrics(y_pred, y_true):
 
 def train_epoch(model, dataloader, criterion, optimizer=None, is_training=True):
     """
-    Treina ou avalia o modelo para uma época.
+    Trains or evaluates the model for one epoch.
 
-    Parâmetros:
-        model: Modelo a ser treinado ou avaliado.
-        dataloader: DataLoader para o conjunto de dados (treinamento ou validação).
-        criterion: Função de perda.
-        optimizer: Otimizador (apenas para treinamento).
-        is_training: Define se é uma etapa de treinamento ou avaliação.
+    Parameters:
+        model (torch.nn.Module): The model to be trained or evaluated.
+        dataloader (torch.utils.data.DataLoader): DataLoader for the dataset (training or validation).
+        criterion (torch.nn.Module): Loss function.
+        optimizer (torch.optim.Optimizer, optional): Optimizer (only for training).
+        is_training (bool): Indicates whether it is a training or evaluation step.
 
-    Retorna:
-        A perda média e as métricas de avaliação (MAE, MSE, RMSE).
+    Returns:
+        tuple: The average loss and evaluation metrics (MAE, MSE, RMSE).
     """
     epoch_loss = 0
     all_y_pred = []
@@ -51,7 +51,7 @@ def train_epoch(model, dataloader, criterion, optimizer=None, is_training=True):
         if is_training:
             optimizer.zero_grad()
 
-        # Garantir que os tensores estejam no dispositivo correto
+        # Ensure tensors are on the correct device
         x_batch = x_batch.to(next(model.parameters()).device)
         y_batch = y_batch.to(next(model.parameters()).device)
 
@@ -60,19 +60,19 @@ def train_epoch(model, dataloader, criterion, optimizer=None, is_training=True):
         loss = criterion(y_pred, y_batch)
 
         if is_training:
-            # Backward pass e otimização
+            # Backward pass and optimization
             loss.backward()
             optimizer.step()
 
-        # Acumular métricas e perdas
+        # Accumulate metrics and losses
         epoch_loss += loss.item()
         all_y_pred.append(y_pred.detach())
         all_y_true.append(y_batch.detach())
 
-    # Calcular a perda média
+    # Calculate average loss
     epoch_loss /= len(dataloader)
 
-    # Combinar predições e valores reais para métricas
+    # Combine predictions and actual values for metrics
     all_y_pred = torch.cat(all_y_pred)
     all_y_true = torch.cat(all_y_true)
 
@@ -87,27 +87,33 @@ def train_model(
     step_size_up=10, step_size=30, gamma=0.5, t_max=50
 ):
     """
-    Treina o modelo para um problema de regressão.
+    Trains the model for a regression problem.
 
-    Parâmetros:
-        model: O modelo a ser treinado.
-        train_loader: DataLoader para os dados de treino.
-        val_loader: DataLoader para os dados de validação.
-        epochs: Número de épocas de treinamento.
-        lr: Taxa de aprendizado inicial.
-        weight_decay: Regularização L2.
-        scheduler_type: Tipo de scheduler ('reduce_on_plateau', 'cyclic', 'step', 'cosine_annealing').
-        early_stopping_patience: Paciência para early stopping.
-        Parâmetros específicos para os schedulers:
-            patience, factor, cyclic_base_lr, cyclic_max_lr, step_size_up, step_size, gamma, t_max.
+    Parameters:
+        model (torch.nn.Module): The model to be trained.
+        train_loader (torch.utils.data.DataLoader): DataLoader for the training data.
+        val_loader (torch.utils.data.DataLoader): DataLoader for the validation data.
+        epochs (int): Number of training epochs.
+        lr (float): Initial learning rate.
+        weight_decay (float): L2 regularization.
+        scheduler_type (str): Type of scheduler ('reduce_on_plateau', 'cyclic', 'step', 'cosine_annealing').
+        early_stopping_patience (int): Patience for early stopping.
+        patience (int): Patience for the scheduler.
+        factor (float): Factor for the scheduler.
+        cyclic_base_lr (float): Base learning rate for cyclic scheduler.
+        cyclic_max_lr (float): Maximum learning rate for cyclic scheduler.
+        step_size_up (int): Step size up for cyclic scheduler.
+        step_size (int): Step size for step scheduler.
+        gamma (float): Gamma for step scheduler.
+        t_max (int): Maximum number of iterations for cosine annealing scheduler.
 
-    Retorna:
-        O modelo treinado.
+    Returns:
+        torch.nn.Module: The trained model.
     """
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
+    optimizer = Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
 
-    # Configuração do scheduler
+    # Scheduler configuration
     if scheduler_type == "reduce_on_plateau":
         scheduler = ReduceLROnPlateau(optimizer, mode='min', patience=patience, factor=factor)
     elif scheduler_type == "cyclic":
@@ -119,26 +125,26 @@ def train_model(
         scheduler = CosineAnnealingLR(optimizer, T_max=t_max)
     else:
         raise ValueError(
-            "Tipo de scheduler inválido. Escolha entre 'reduce_on_plateau', 'cyclic', 'step', ou 'cosine_annealing'.")
+            "Invalid scheduler type. Choose between 'reduce_on_plateau', 'cyclic', 'step', or 'cosine_annealing'.")
 
     best_val_loss = float('inf')
     early_stopping_counter = 0
     best_model_state = None
 
     for epoch in range(epochs):
-        # Treinamento
+        # Training
         train_loss, train_metrics = train_epoch(model, train_loader, criterion, optimizer, is_training=True)
 
-        # Validação
+        # Validation
         val_loss, val_metrics = train_epoch(model, val_loader, criterion, is_training=False)
 
-        # Atualizar o scheduler
+        # Update scheduler
         if scheduler_type == "reduce_on_plateau":
             scheduler.step(val_loss)
         else:
             scheduler.step()
 
-        # Log das métricas no MLflow
+        # Log metrics to MLflow
         log_metrics({
             "epoch": epoch + 1,
             "train_loss": train_loss,
@@ -152,7 +158,7 @@ def train_model(
             "learning_rate": optimizer.param_groups[0]['lr']
         })
 
-        # Exibição dos resultados
+        # Display results
         if (epoch + 1) % 10 == 0 or epoch == 0:
             print(f"Epoch {epoch + 1}/{epochs} | Train Loss: {train_loss:.6f} | Val Loss: {val_loss:.6f} | "
                   f"Train RMSE: {train_metrics['RMSE']:.4f} | Val RMSE: {val_metrics['RMSE']:.4f} | "
@@ -169,7 +175,7 @@ def train_model(
                 print(f"Early stopping at epoch {epoch + 1}")
                 break
 
-    # Restaurar o melhor modelo
+    # Restore the best model
     if best_model_state is not None:
         model.load_state_dict(best_model_state)
 
